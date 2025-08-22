@@ -3,15 +3,20 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    database_url: str = Field(..., env="DATABASE_URL")
+    database_user: str = Field(..., env="DATABASE_USER")
     database_password: str = Field(..., env="DATABASE_PASSWORD")
-# secret_key: str = Field(..., env="SECRET_KEY")
-# api_key: str = Field(..., env="API_KEY")
-# redis_url: str = Field(default="redis://localhost:6379", env="REDIS_URL")
-# debug: bool = Field(default=False, env="DEBUG")
-# port: int = Field(default=8000, env="PORT")
+    database_host: str = Field("localhost", env="DATABASE_HOST")
+    database_port: int = Field(5432, env="DATABASE_PORT")
+    database_name: str = Field(..., env="DATABASE_NAME")
 
-class Config:
+    @property
+    def database_url(self) -> str:
+        return (
+            f"postgresql://{self.database_user}:{self.database_password}"
+            f"@{self.database_host}:{self.database_port}/{self.database_name}"
+        )
+
+    class Config:
         env_file = ".env"
         case_sensitive = False
 
